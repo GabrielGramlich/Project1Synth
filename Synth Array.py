@@ -1,16 +1,20 @@
+## TODO: fix octave shift
+## TODO: fix note length
+
 from scipy import signal as sg
 import numpy as np
 import sounddevice as sd
-import keyboard
+import keyboard as kb
 
 sampleRate = 44100  # lowest indistinguishable sample rate
 sawWidth = .75  # between 0 and 1, 1 is upwards saw, 0 is downwards saw, .5 is triangle wave
 pulseWidth = .25  # between 0 and 1, higher width equals more positive time
-noteLength = 350000     # MAX 25,000,000
-octaveIndex = 0
+# noteLength = 350000     # MAX 25,000,000
+octaveIndex = 4
+noteIndex = 1
 waveformIndex = 0
 REST = 0
-notesArray = [16.35,    # C0
+notesList = [16.35,    # C0
     17.32,  # Cs0Db0
     18.35,  # D0
     19.45,  # Ds0Eb0
@@ -118,104 +122,181 @@ notesArray = [16.35,    # C0
     7040.00,    # A8
     7458.62,    # As8Bb8
     7902.13]    # B8
+infinite = True
+go = True
 
 def Sine(frequency):
     x = np.linspace(0, 2, sampleRate, endpoint=False)  # places individual samples of waveform
     y = np.sin(np.pi * frequency * x)  # creates fun part of wave
     sd.play(y, sampleRate)
-    i = 0
-    while i < noteLength:
-        i = i + 1
 
 
 def Tri(frequency, width):
     x = np.linspace(0, 2, sampleRate)  # places individual samples of waveform
     y = sg.sawtooth(np.pi * frequency * x, width)  # creates fun part of wave
     sd.play(y, sampleRate)  # Sends wave to speakers
-    i = 0
-    while i < noteLength:
-        i = i + 1
 
 
 def Square(frequency, width):
     x = np.linspace(0, 2, sampleRate)  # places individual samples of waveform
     y = sg.square(np.pi * frequency * x, width)  # creates fun part of wave
     sd.play(y, sampleRate)  # Sends wave to speakers
-    i = 0
-    while i < noteLength:
-        i = i + 1
 
 
-def WaveformSelect():
-    if keyboard.is_pressed('z'):    # left
+def WaveformSelect(key):
+    global waveformIndex
+    if key == 'last':    # left
         waveformIndex = waveformIndex - 1
         if waveformIndex == - 1:
             waveformIndex = 2
-    if keyboard.is_pressed('c'):    # right 0
+    if key == 'next':    # right 0
         waveformIndex = waveformIndex + 1
         if waveformIndex == 3:
             waveformIndex = 0
+    print('')
+    if waveformIndex == 0:
+        print('Current waveform type is sinusoidal')
+    elif waveformIndex == 1:
+        print('Current waveform type is triangle')
+    elif waveformIndex == 2:
+        print('Current waveform type is pulse')
+    print('Press space to continue.')
+    kb.wait('space')
 
 
-def OctaveSelect():
-    if keyboard.is_pressed('s'):    # up
+def OctaveSelect(key):
+    global octaveIndex
+    if key == 'up':    # up
         octaveIndex = octaveIndex - 1
         if octaveIndex == 0:
             octaveIndex = 1
-    if keyboard.is_pressed('x'):    # down
+    if key == 'down':    # down
         octaveIndex = octaveIndex + 1
         if octaveIndex == 10:
             octaveIndex = 9
+    print('')
+    print("Current octave is " + str(octaveIndex))
+    print('Press space to continue.')
+    kb.wait('space')
 
 
-def PusleMod():
+def PulseMod(key):
     global pulseWidth
-    if keyboard.is_pressed('v'):
+    if key == 'down':
         pulseWidth = pulseWidth - .05
         if pulseWidth < 0:
             pulseWidth = 0
-    if keyboard.is_pressed('b'):
+    if key == 'up':
         pulseWidth = pulseWidth + .05
         if pulseWidth > 1:
             pulseWidth = 1
+    print('')
+    print("Current pulse width is " + str(pulseWidth))
+    print('Press space to continue.')
+    kb.wait('space')
 
 
-def SawMod():
+def SawMod(key):
     global sawWidth
-    if keyboard.is_pressed('n'):
+    if key == 'down':
         sawWidth = sawWidth - .05
         if sawWidth < 0:
             sawWidth = 0
-    if keyboard.is_pressed('m'):
+    if key == 'up':
         sawWidth = sawWidth + .05
         if sawWidth > 1:
             sawWidth = 1
+    print('')
+    print("Current saw width is " + str(sawWidth))
+    print('Press space to continue.')
+    kb.wait('space')
 
 
-while True:  # making a loop
-    try:  # used try so that if user pressed other than the given key error will not be shown
-        if keyboard.is_pressed('q'):    # C
-            if waveformIndex == 0:
-                Sine(noteLength[octaveIndex])
-            elif waveformIndex == 1:
-                Tri(noteLength[octaveIndex])
-            elif waveformIndex == 2:
-                Square(noteLength[octaveIndex])
-        elif keyboard.is_pressed('2'):  # CsDb
-        elif keyboard.is_pressed('w'):  # D
-        elif keyboard.is_pressed('3'):  # DsEb
-        elif keyboard.is_pressed('e'):  # E
-        elif keyboard.is_pressed('r'):  # F
-        elif keyboard.is_pressed('5'):  # FsGb
-        elif keyboard.is_pressed('t'):  # G
-        elif keyboard.is_pressed('6'):  # GsAb
-        elif keyboard.is_pressed('y'):  # A
-        elif keyboard.is_pressed('7'):  # AsBb
-        elif keyboard.is_pressed('u'):  # B
-        elif keyboard.is_pressed('i'):  # C
-        elif keyboard.is_pressed('esc'):
-            break
+def SendSound(index):
+    if waveformIndex == 0:
+        Sine(notesList[index])
+    elif waveformIndex == 1:
+        Tri(notesList[index], sawWidth)
+    elif waveformIndex == 2:
+        Square(notesList[index], pulseWidth)
+
+
+def KeyPress():
+    if kb.is_pressed('s'):
+        OctaveSelect('up')
+    elif kb.is_pressed('x'):
+        OctaveSelect('down')
+    elif kb.is_pressed('v'):
+        PulseMod('down')
+    elif kb.is_pressed('b'):
+        PulseMod('up')
+    elif kb.is_pressed('n'):
+        SawMod('down')
+    elif kb.is_pressed('m'):
+        SawMod('up')
+    elif kb.is_pressed('z'):
+        WaveformSelect('last')
+    elif kb.is_pressed('c'):
+        WaveformSelect('next')
+    elif kb.is_pressed('q'):    # C
+        noteIndex = 108 - (12 * octaveIndex)
+        SendSound(noteIndex)
+    elif kb.is_pressed('2'):  # CsDb
+        noteIndex = 109 - (12 * octaveIndex)
+        SendSound(noteIndex)
+    elif kb.is_pressed('w'):  # D
+        noteIndex = 110 - (12 * octaveIndex)
+        SendSound(noteIndex)
+    elif kb.is_pressed('3'):  # DsEb
+        noteIndex = 111 - (12 * octaveIndex)
+        SendSound(noteIndex)
+    elif kb.is_pressed('e'):  # E
+        noteIndex = 112 - (12 * octaveIndex)
+        SendSound(noteIndex)
+    elif kb.is_pressed('r'):  # F
+        noteIndex = 113 - (12 * octaveIndex)
+        SendSound(noteIndex)
+    elif kb.is_pressed('5'):  # FsGb
+        noteIndex = 114 - (12 * octaveIndex)
+        SendSound(noteIndex)
+    elif kb.is_pressed('t'):  # G
+        noteIndex = 115 - (12 * octaveIndex)
+        SendSound(noteIndex)
+    elif kb.is_pressed('6'):  # GsAb
+        noteIndex = 116 - (12 * octaveIndex)
+        SendSound(noteIndex)
+    elif kb.is_pressed('y'):  # A
+        noteIndex = 117 - (12 * octaveIndex)
+        SendSound(noteIndex)
+    elif kb.is_pressed('7'):  # AsBb
+        noteIndex = 118 - (12 * octaveIndex)
+        SendSound(noteIndex)
+    elif kb.is_pressed('u'):  # B
+        noteIndex = 119 - (12 * octaveIndex)
+        SendSound(noteIndex)
+    elif kb.is_pressed('i'):  # C
+        if octaveIndex > 1:
+            noteIndex = 120 - (12 * octaveIndex)
+            SendSound(noteIndex)
         else:
-            pass
-    except:
+            if waveformIndex == 0:
+                Sine(REST)
+            elif waveformIndex == 1:
+                Tri(REST, sawWidth)
+            elif waveformIndex == 2:
+                Square(REST, pulseWidth)
+    if kb.is_pressed('esc'):
+        return False
+    else:
+        return True
+
+
+while infinite:  # creates an infinite loop to keep the synth fun going
+    if go == True:
+        go = KeyPress()
+    else:
         break
+
+print('')
+print('')
+print('Thanks for making some bad music, Panga!')
