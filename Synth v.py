@@ -1,5 +1,5 @@
-## TODO: fix note length
-## TODO: fix exit
+## TODO: fix next key press glitch
+## TODO: fix exit error
 
 from scipy import signal as sg
 import numpy as np
@@ -13,7 +13,7 @@ sawWidth = .75  # between 0 and 1, 1 is upwards saw, 0 is downwards saw, .5 is t
 pulseWidth = .25  # between 0 and 1, higher width equals more positive time
 octaveIndex = 4     # between 0 and 9, higher number corresponds to lower octave
 waveformIndex = 0   # between 0 and 2, 0 is sine, 1 is tri, 2 is pulse
-noteIndex = 0
+noteIndex = 48
 notesList = [16.35,    # C0
     17.32,  # Cs0Db0
     18.35,  # D0
@@ -123,12 +123,13 @@ notesList = [16.35,    # C0
     7458.62,    # As8Bb8
     7902.13,    # B8
     0.00]       # Rest
-
+currentNote = 0
+go = True
 
 def Sine(frequency):
-    x = np.linspace(0, 2, sampleRate, endpoint=False)  # places individual samples of waveform
+    x = np.linspace(0, 2, sampleRate)  # places individual samples of waveform
     y = np.sin(np.pi * frequency * x)  # creates fun part of wave
-    sd.play(y, sampleRate)  # sends wave to speakers
+    sd.play(y, sampleRate, loop=True)  # sends wave to speakers
 
 
 def Tri(frequency, width):
@@ -216,37 +217,65 @@ def SendSound(note):
         Square(notesList[index], pulseWidth)
 
 
-# def Quit(yes):
-#     while yes == 1:
-#         # print('')
-#         # print('')
-#         # print('Thanks for making some bad music, Panga!')
-#         kb.unhook_all_hotkeys()
-#         print("Press space to exit.")
-#         sys.exit()
+def KeyPress(nothing):
+    if go:
+        global go
+        SendSound(currentNote)
+        go = False
 
 
-kb.add_hotkey('s', OctaveSelect, args=['up'], suppress=True)
-kb.add_hotkey('x', OctaveSelect, args=['down'], suppress=True)
-kb.add_hotkey('v', PulseMod, args=['down'], suppress=True)
-kb.add_hotkey('b', PulseMod, args=['up'], suppress=True)
-kb.add_hotkey('n', SawMod, args=['down'], suppress=True)
-kb.add_hotkey('m', SawMod, args=['up'], suppress=True)
+def KeyRelease(nothing):
+    global noteIndex, go
+    noteIndex = 12
+    SendSound(120)
+    noteIndex = (octaveIndex * 12)
+    go = True
+
+
+def StartPress(note):
+    global currentNote
+    currentNote = note
+    kb.on_press(KeyPress)
+
+
+kb.add_hotkey('s', OctaveSelect, args=['up'])
+kb.add_hotkey('x', OctaveSelect, args=['down'])
+kb.add_hotkey('v', SawMod, args=['down'])
+kb.add_hotkey('b', SawMod, args=['up'], suppress=True)
+kb.add_hotkey('n', PulseMod, args=['down'], suppress=True)
+kb.add_hotkey('m', PulseMod, args=['up'], suppress=True)
 kb.add_hotkey('z', WaveformSelect, args=['last'], suppress=True)
 kb.add_hotkey('c', WaveformSelect, args=['next'], suppress=True)
-kb.add_hotkey('q', SendSound, args=[108], suppress=True)  # corresponds with C
-kb.add_hotkey('2', SendSound, args=[109], suppress=True)  # corresponds with CsDb
-kb.add_hotkey('w', SendSound, args=[110], suppress=True)  # corresponds with D
-kb.add_hotkey('3', SendSound, args=[111], suppress=True)  # corresponds with DsEb
-kb.add_hotkey('e', SendSound, args=[112], suppress=True)  # corresponds with E
-kb.add_hotkey('r', SendSound, args=[113], suppress=True)  # corresponds with F
-kb.add_hotkey('5', SendSound, args=[114], suppress=True)  # corresponds with FsGb
-kb.add_hotkey('t', SendSound, args=[115], suppress=True)  # corresponds with G
-kb.add_hotkey('6', SendSound, args=[116], suppress=True)  # corresponds with GsAb
-kb.add_hotkey('y', SendSound, args=[117], suppress=True)  # corresponds with A
-kb.add_hotkey('7', SendSound, args=[118], suppress=True)  # corresponds with AsBb
-kb.add_hotkey('u', SendSound, args=[119], suppress=True)  # corresponds with B
-kb.add_hotkey('i', SendSound, args=[120], suppress=True)  # corresponds with C
-# kb.add_hotkey('1', Quit, args=[1], suppress=True)  # exits program
+kb.add_hotkey('q', StartPress, args=[108], suppress=True)  # corresponds with C
+kb.on_release_key('q', KeyRelease)
+kb.add_hotkey('2', StartPress, args=[109], suppress=True)  # corresponds with CsDb
+kb.on_release_key('2', KeyRelease)
+kb.add_hotkey('w', StartPress, args=[110], suppress=True)  # corresponds with D
+kb.on_release_key('w', KeyRelease)
+kb.add_hotkey('3', StartPress, args=[111], suppress=True)  # corresponds with DsEb
+kb.on_release_key('3', KeyRelease)
+kb.add_hotkey('e', StartPress, args=[112], suppress=True)  # corresponds with E
+kb.on_release_key('e', KeyRelease)
+kb.add_hotkey('r', StartPress, args=[113], suppress=True)  # corresponds with F
+kb.on_release_key('r', KeyRelease)
+kb.add_hotkey('5', StartPress, args=[114], suppress=True)  # corresponds with FsGb
+kb.on_release_key('5', KeyRelease)
+kb.add_hotkey('t', StartPress, args=[115], suppress=True)  # corresponds with G
+kb.on_release_key('t', KeyRelease)
+kb.add_hotkey('6', StartPress, args=[116], suppress=True)  # corresponds with GsAb
+kb.on_release_key('6', KeyRelease)
+kb.add_hotkey('y', StartPress, args=[117], suppress=True)  # corresponds with A
+kb.on_release_key('y', KeyRelease)
+kb.add_hotkey('7', StartPress, args=[118], suppress=True)  # corresponds with AsBb
+kb.on_release_key('7', KeyRelease)
+kb.add_hotkey('u', StartPress, args=[119], suppress=True)  # corresponds with B
+kb.on_release_key('u', KeyRelease)
+kb.add_hotkey('i', StartPress, args=[120], suppress=True)  # corresponds with C
+kb.on_release_key('i', KeyRelease)
 
 kb.wait('esc')
+
+print('')
+print('')
+print('')
+print('Thanks for making some dumb music, Panga!')

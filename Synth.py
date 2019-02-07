@@ -22,10 +22,10 @@ amplitude = 20  # volume
 
 x = np.linspace(0, 2, sampleRate)  # places individual samples of waveform
 y = amplitude * np.sin(np.pi * frequency * x)  # creates fun part of wave
-# plt.plot(x, y)  # plots it for visual interpretation
-# plt.xlabel('frequency(n)')  # labels the graphic
-# plt.ylabel('voltage(V)')    # labels the graphic
-# plt.show()  # prints graph
+plt.plot(x, y)  # plots it for visual interpretation
+plt.xlabel('frequency(n)')  # labels the graphic
+plt.ylabel('voltage(V)')    # labels the graphic
+plt.show()  # prints graph
 sd.play(y, 44100)
 
 while True:
