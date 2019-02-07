@@ -1,5 +1,5 @@
 ## TODO: fix next key press glitch
-## TODO: fix exit error
+## TODO: fix suppresion
 
 from scipy import signal as sg
 import numpy as np
@@ -238,44 +238,48 @@ def StartPress(note):
     kb.on_press(KeyPress)
 
 
+def DieProgramDie():
+    sd.stop()
+    print('')
+    print('')
+    print('')
+    print('Thanks for making some dumb music, Panga!')
+
+
 kb.add_hotkey('s', OctaveSelect, args=['up'])
 kb.add_hotkey('x', OctaveSelect, args=['down'])
 kb.add_hotkey('v', SawMod, args=['down'])
-kb.add_hotkey('b', SawMod, args=['up'], suppress=True)
-kb.add_hotkey('n', PulseMod, args=['down'], suppress=True)
-kb.add_hotkey('m', PulseMod, args=['up'], suppress=True)
-kb.add_hotkey('z', WaveformSelect, args=['last'], suppress=True)
-kb.add_hotkey('c', WaveformSelect, args=['next'], suppress=True)
-kb.add_hotkey('q', StartPress, args=[108], suppress=True)  # corresponds with C
+kb.add_hotkey('b', SawMod, args=['up'])
+kb.add_hotkey('n', PulseMod, args=['down'])
+kb.add_hotkey('m', PulseMod, args=['up'])
+kb.add_hotkey('z', WaveformSelect, args=['last'])
+kb.add_hotkey('c', WaveformSelect, args=['next'])
+kb.add_hotkey('q', StartPress, args=[108])  # corresponds with C
 kb.on_release_key('q', KeyRelease)
-kb.add_hotkey('2', StartPress, args=[109], suppress=True)  # corresponds with CsDb
+kb.add_hotkey('2', StartPress, args=[109])  # corresponds with CsDb
 kb.on_release_key('2', KeyRelease)
-kb.add_hotkey('w', StartPress, args=[110], suppress=True)  # corresponds with D
+kb.add_hotkey('w', StartPress, args=[110])  # corresponds with D
 kb.on_release_key('w', KeyRelease)
-kb.add_hotkey('3', StartPress, args=[111], suppress=True)  # corresponds with DsEb
+kb.add_hotkey('3', StartPress, args=[111])  # corresponds with DsEb
 kb.on_release_key('3', KeyRelease)
-kb.add_hotkey('e', StartPress, args=[112], suppress=True)  # corresponds with E
+kb.add_hotkey('e', StartPress, args=[112])  # corresponds with E
 kb.on_release_key('e', KeyRelease)
-kb.add_hotkey('r', StartPress, args=[113], suppress=True)  # corresponds with F
+kb.add_hotkey('r', StartPress, args=[113])  # corresponds with F
 kb.on_release_key('r', KeyRelease)
-kb.add_hotkey('5', StartPress, args=[114], suppress=True)  # corresponds with FsGb
+kb.add_hotkey('5', StartPress, args=[114])  # corresponds with FsGb
 kb.on_release_key('5', KeyRelease)
-kb.add_hotkey('t', StartPress, args=[115], suppress=True)  # corresponds with G
+kb.add_hotkey('t', StartPress, args=[115])  # corresponds with G
 kb.on_release_key('t', KeyRelease)
-kb.add_hotkey('6', StartPress, args=[116], suppress=True)  # corresponds with GsAb
+kb.add_hotkey('6', StartPress, args=[116])  # corresponds with GsAb
 kb.on_release_key('6', KeyRelease)
-kb.add_hotkey('y', StartPress, args=[117], suppress=True)  # corresponds with A
+kb.add_hotkey('y', StartPress, args=[117])  # corresponds with A
 kb.on_release_key('y', KeyRelease)
-kb.add_hotkey('7', StartPress, args=[118], suppress=True)  # corresponds with AsBb
+kb.add_hotkey('7', StartPress, args=[118])  # corresponds with AsBb
 kb.on_release_key('7', KeyRelease)
-kb.add_hotkey('u', StartPress, args=[119], suppress=True)  # corresponds with B
+kb.add_hotkey('u', StartPress, args=[119])  # corresponds with B
 kb.on_release_key('u', KeyRelease)
-kb.add_hotkey('i', StartPress, args=[120], suppress=True)  # corresponds with C
+kb.add_hotkey('i', StartPress, args=[120])  # corresponds with C
 kb.on_release_key('i', KeyRelease)
+kb.add_hotkey('esc', DieProgramDie)
 
 kb.wait('esc')
-
-print('')
-print('')
-print('')
-print('Thanks for making some dumb music, Panga!')
