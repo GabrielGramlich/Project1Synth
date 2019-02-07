@@ -1,5 +1,5 @@
-## TODO: fix octave shift
 ## TODO: fix note length
+## TODO: fix exit
 
 from scipy import signal as sg
 import numpy as np
@@ -8,112 +8,12 @@ import keyboard as kb
 import sys
 
 
-def Sine(frequency):
-    x = np.linspace(0, 2, sampleRate, endpoint=False)  # places individual samples of waveform
-    y = np.sin(np.pi * frequency * x)  # creates fun part of wave
-    sd.play(y, sampleRate)
-
-
-def Tri(frequency, width):
-    x = np.linspace(0, 2, sampleRate)  # places individual samples of waveform
-    y = sg.sawtooth(np.pi * frequency * x, width)  # creates fun part of wave
-    sd.play(y, sampleRate)  # Sends wave to speakers
-
-
-def Square(frequency, width):
-    x = np.linspace(0, 2, sampleRate)  # places individual samples of waveform
-    y = sg.square(np.pi * frequency * x, width)  # creates fun part of wave
-    sd.play(y, sampleRate)  # Sends wave to speakers
-
-
-def WaveformSelect(key):
-    global waveformIndex
-    if key == 'last':    # left
-        waveformIndex = waveformIndex - 1
-        if waveformIndex == - 1:
-            waveformIndex = 2
-    if key == 'next':    # right 0
-        waveformIndex = waveformIndex + 1
-        if waveformIndex == 3:
-            waveformIndex = 0
-    print('')
-    if waveformIndex == 0:
-        print('Current waveform type is sinusoidal')
-    elif waveformIndex == 1:
-        print('Current waveform type is triangle')
-    elif waveformIndex == 2:
-        print('Current waveform type is pulse')
-    # print('Press space to continue.')
-    # kb.wait('space')
-
-
-def OctaveSelect(key):
-    global octaveIndex
-    if key == 'up':    # up
-        octaveIndex = octaveIndex - 1
-        if octaveIndex == 0:
-            octaveIndex = 1
-    if key == 'down':    # down
-        octaveIndex = octaveIndex + 1
-        if octaveIndex == 10:
-            octaveIndex = 9
-    print('')
-    print("Current octave is " + str(octaveIndex))
-    # print('Press space to continue.')
-    # kb.wait('space')
-
-
-def PulseMod(key):
-    global pulseWidth
-    if key == 'down':
-        pulseWidth = pulseWidth - .05
-        if pulseWidth < 0:
-            pulseWidth = 0
-    if key == 'up':
-        pulseWidth = pulseWidth + .05
-        if pulseWidth > 1:
-            pulseWidth = 1
-    print('')
-    print("Current pulse width is " + str(pulseWidth))
-    # print('Press space to continue.')
-    # kb.wait('space')
-
-
-def SawMod(key):
-    global sawWidth
-    if key == 'down':
-        sawWidth = sawWidth - .05
-        if sawWidth < 0:
-            sawWidth = 0
-    if key == 'up':
-        sawWidth = sawWidth + .05
-        if sawWidth > 1:
-            sawWidth = 1
-    print('')
-    print("Current saw width is " + str(sawWidth))
-    # print('Press space to continue.')
-    # kb.wait('space')
-
-
-def SendSound(index):
-    if waveformIndex == 0:
-        Sine(notesList[index])
-    elif waveformIndex == 1:
-        Tri(notesList[index], sawWidth)
-    elif waveformIndex == 2:
-        Square(notesList[index], pulseWidth)
-
-
-def Quit():
-    sys.exit
-
 sampleRate = 44100  # lowest indistinguishable sample rate
 sawWidth = .75  # between 0 and 1, 1 is upwards saw, 0 is downwards saw, .5 is triangle wave
 pulseWidth = .25  # between 0 and 1, higher width equals more positive time
-# noteLength = 350000     # MAX 25,000,000
-octaveIndex = 4
-noteIndex = 1
-waveformIndex = 0
+octaveIndex = 4     # between 0 and 9, higher number corresponds to lower octave
+waveformIndex = 0   # between 0 and 2, 0 is sine, 1 is tri, 2 is pulse
+noteIndex = 0
 notesList = [16.35,    # C0
     17.32,  # Cs0Db0
     18.35,  # D0
@@ -223,34 +123,130 @@ notesList = [16.35,    # C0
     7458.62,    # As8Bb8
     7902.13,    # B8
     0.00]       # Rest
-infinite = True
-go = True
 
-kb.add_hotkey('s', OctaveSelect, args=('up'), suppress=True)
-kb.add_hotkey('x', OctaveSelect, args=('down'), suppress=True)
-kb.add_hotkey('v', PulseMod, args=('down'), suppress=True)
-kb.add_hotkey('b', PulseMod, args=('up'), suppress=True)
-kb.add_hotkey('n', SawMod, args=('down'), suppress=True)
-kb.add_hotkey('m', SawMod, args=('up'), suppress=True)
-kb.add_hotkey('z', WaveformSelect, args=('last'), suppress=True)
-kb.add_hotkey('c', WaveformSelect, args=('next'), suppress=True)
-kb.add_hotkey('q', SendSound, args=(108 - (12 * octaveIndex)), suppress=True)  # C
-kb.add_hotkey('2', SendSound, args=(109 - (12 * octaveIndex)), suppress=True)  # CsDb
-kb.add_hotkey('w', SendSound, args=(110 - (12 * octaveIndex)), suppress=True)  # D
-kb.add_hotkey('3', SendSound, args=(111 - (12 * octaveIndex)), suppress=True)  # DsEb
-kb.add_hotkey('e', SendSound, args=(112 - (12 * octaveIndex)), suppress=True)  # E
-kb.add_hotkey('r', SendSound, args=(113 - (12 * octaveIndex)), suppress=True)  # F
-kb.add_hotkey('5', SendSound, args=(114 - (12 * octaveIndex)), suppress=True)  # FsGb
-kb.add_hotkey('t', SendSound, args=(115 - (12 * octaveIndex)), suppress=True)  # G
-kb.add_hotkey('6', SendSound, args=(116 - (12 * octaveIndex)), suppress=True)  # GsAb
-kb.add_hotkey('y', SendSound, args=(117 - (12 * octaveIndex)), suppress=True)  # A
-kb.add_hotkey('7', SendSound, args=(118 - (12 * octaveIndex)), suppress=True)  # AsBb
-kb.add_hotkey('u', SendSound, args=(119 - (12 * octaveIndex)), suppress=True)  # B
-kb.add_hotkey('i', SendSound, args=(120 - (12 * octaveIndex)), suppress=True)  # C
-kb.add_hotkey('p', Quit, args=(), suppress=True)  # C
 
-kb.wait()
+def Sine(frequency):
+    x = np.linspace(0, 2, sampleRate, endpoint=False)  # places individual samples of waveform
+    y = np.sin(np.pi * frequency * x)  # creates fun part of wave
+    sd.play(y, sampleRate)  # sends wave to speakers
 
-print('')
-print('')
-print('Thanks for making some bad music, Panga!')
+
+def Tri(frequency, width):
+    x = np.linspace(0, 2, sampleRate)  # places individual samples of waveform
+    y = sg.sawtooth(np.pi * frequency * x, width)  # creates fun part of wave
+    sd.play(y, sampleRate)  # sends wave to speakers
+
+
+def Square(frequency, width):
+    x = np.linspace(0, 2, sampleRate)  # places individual samples of waveform
+    y = sg.square(np.pi * frequency * x, width)  # creates fun part of wave
+    sd.play(y, sampleRate)  # sends wave to speakers
+
+
+def WaveformSelect(key):
+    global waveformIndex
+    if key == 'last':
+        waveformIndex = waveformIndex - 1
+        if waveformIndex == - 1:
+            waveformIndex = 2
+    if key == 'next':
+        waveformIndex = waveformIndex + 1
+        if waveformIndex == 3:
+            waveformIndex = 0
+    print('')
+    if waveformIndex == 0:
+        print('Current waveform type is sinusoidal')
+    elif waveformIndex == 1:
+        print('Current waveform type is triangle')
+    elif waveformIndex == 2:
+        print('Current waveform type is pulse')
+
+
+def OctaveSelect(key):
+    global octaveIndex
+    global noteIndex
+    if key == 'up':
+        octaveIndex = octaveIndex - 1
+        if octaveIndex == 0:
+            octaveIndex = 1
+    if key == 'down':
+        octaveIndex = octaveIndex + 1
+        if octaveIndex == 10:
+            octaveIndex = 9
+    noteIndex = (octaveIndex * 12)
+    print('')
+    print("Current octave is " + str(octaveIndex))
+
+
+def PulseMod(key):
+    global pulseWidth
+    if key == 'down':
+        pulseWidth = pulseWidth - .025
+        if pulseWidth < 0:
+            pulseWidth = 0
+    if key == 'up':
+        pulseWidth = pulseWidth + .025
+        if pulseWidth > 1:
+            pulseWidth = 1
+    print('')
+    print("Current pulse width is " + str(pulseWidth))
+
+
+def SawMod(key):
+    global sawWidth
+    if key == 'down':
+        sawWidth = sawWidth - .025
+        if sawWidth < 0:
+            sawWidth = 0
+    if key == 'up':
+        sawWidth = sawWidth + .025
+        if sawWidth > 1:
+            sawWidth = 1
+    print('')
+    print("Current saw width is " + str(sawWidth))
+
+
+def SendSound(note):
+    index = note - noteIndex
+    if waveformIndex == 0:
+        Sine(notesList[index])
+    elif waveformIndex == 1:
+        Tri(notesList[index], sawWidth)
+    elif waveformIndex == 2:
+        Square(notesList[index], pulseWidth)
+
+
+# def Quit(yes):
+#     while yes == 1:
+#         # print('')
+#         # print('')
+#         # print('Thanks for making some bad music, Panga!')
+#         kb.unhook_all_hotkeys()
+#         print("Press space to exit.")
+#         sys.exit()
+
+
+kb.add_hotkey('s', OctaveSelect, args=['up'], suppress=True)
+kb.add_hotkey('x', OctaveSelect, args=['down'], suppress=True)
+kb.add_hotkey('v', PulseMod, args=['down'], suppress=True)
+kb.add_hotkey('b', PulseMod, args=['up'], suppress=True)
+kb.add_hotkey('n', SawMod, args=['down'], suppress=True)
+kb.add_hotkey('m', SawMod, args=['up'], suppress=True)
+kb.add_hotkey('z', WaveformSelect, args=['last'], suppress=True)
+kb.add_hotkey('c', WaveformSelect, args=['next'], suppress=True)
+kb.add_hotkey('q', SendSound, args=[108], suppress=True)  # corresponds with C
+kb.add_hotkey('2', SendSound, args=[109], suppress=True)  # corresponds with CsDb
+kb.add_hotkey('w', SendSound, args=[110], suppress=True)  # corresponds with D
+kb.add_hotkey('3', SendSound, args=[111], suppress=True)  # corresponds with DsEb
+kb.add_hotkey('e', SendSound, args=[112], suppress=True)  # corresponds with E
+kb.add_hotkey('r', SendSound, args=[113], suppress=True)  # corresponds with F
+kb.add_hotkey('5', SendSound, args=[114], suppress=True)  # corresponds with FsGb
+kb.add_hotkey('t', SendSound, args=[115], suppress=True)  # corresponds with G
+kb.add_hotkey('6', SendSound, args=[116], suppress=True)  # corresponds with GsAb
+kb.add_hotkey('y', SendSound, args=[117], suppress=True)  # corresponds with A
+kb.add_hotkey('7', SendSound, args=[118], suppress=True)  # corresponds with AsBb
+kb.add_hotkey('u', SendSound, args=[119], suppress=True)  # corresponds with B
+kb.add_hotkey('i', SendSound, args=[120], suppress=True)  # corresponds with C
+# kb.add_hotkey('1', Quit, args=[1], suppress=True)  # exits program
+
+kb.wait('esc')
