@@ -218,8 +218,8 @@ def SendSound(note):
 
 
 def KeyPress(nothing):
+    global go
     if go:
-        global go
         SendSound(currentNote)
         go = False
 
