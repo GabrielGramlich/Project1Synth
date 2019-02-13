@@ -12,6 +12,7 @@ sampleRate = 44100  # lowest indistinguishable sample rate
 sawWidth = .75  # between 0 and 1, 1 is upwards saw, 0 is downwards saw, .5 is triangle wave
 pulseWidth = .25  # between 0 and 1, higher width equals more positive time
 octaveIndex = 4     # between 0 and 9, higher number corresponds to lower octave
+octaveDisplay = 6   # reverse of coded octave
 waveformIndex = 0   # between 0 and 2, 0 is sine, 1 is tri, 2 is pulse
 noteIndex = 48
 notesList = [16.35,    # C0
@@ -156,11 +157,11 @@ def WaveformSelect(key):
             waveformIndex = 0
     print('')
     if waveformIndex == 0:
-        print('Current waveform type is sinusoidal')
+        print("Current waveform:\tSinusoidal")
     elif waveformIndex == 1:
-        print('Current waveform type is triangle')
+        print("Current waveform:\tTriangle")
     elif waveformIndex == 2:
-        print('Current waveform type is pulse')
+        print("Current waveform:\tSquare")
 
 
 def OctaveSelect(key):
@@ -176,7 +177,20 @@ def OctaveSelect(key):
             octaveIndex = 9
     noteIndex = (octaveIndex * 12)
     print('')
-    print("Current octave is " + str(octaveIndex))
+    DisplayOctave()
+
+
+def DisplayOctave():
+    global octaveDisplay
+    if octaveIndex == 5:
+        octaveDisplay = 5
+    if octaveIndex < 5:
+        difference = 5 - octaveIndex
+        octaveDisplay = octaveIndex + (difference * 2)
+    if octaveIndex > 5:
+        difference = octaveIndex - 5
+        octaveDisplay = octaveIndex - (difference * 2)
+    print("Current octave:\t\t" + str(octaveDisplay))
 
 
 def PulseMod(key):
@@ -190,7 +204,7 @@ def PulseMod(key):
         if pulseWidth > 1:
             pulseWidth = 1
     print('')
-    print("Current pulse width is " + str(pulseWidth))
+    print("Current pulse width:\t" + str(pulseWidth))
 
 
 def SawMod(key):
@@ -204,7 +218,7 @@ def SawMod(key):
         if sawWidth > 1:
             sawWidth = 1
     print('')
-    print("Current saw width is " + str(sawWidth))
+    print("Current saw width:\t" + str(sawWidth))
 
 
 def SendSound(note):
@@ -238,6 +252,24 @@ def StartPress(note):
     kb.on_press(KeyPress)
 
 
+def DisplayCurrent():
+    print('')
+    print('')
+    print('')
+    print('')
+    if waveformIndex == 0:
+        print("Current waveform:\tSinusoidal")
+        DisplayOctave()
+    if waveformIndex == 1:
+        print("Current waveform:\tTriangle")
+        print("Current saw width:\t" + str(sawWidth))
+        DisplayOctave()
+    if waveformIndex == 2:
+        print("Current waveform:\tSquare")
+        print("Current pulse width:\t" + str(pulseWidth))
+        DisplayOctave()
+
+
 def DieProgramDie():
     sd.stop()
     print('')
@@ -248,12 +280,13 @@ def DieProgramDie():
 
 kb.add_hotkey('s', OctaveSelect, args=['up'])
 kb.add_hotkey('x', OctaveSelect, args=['down'])
+kb.add_hotkey('z', WaveformSelect, args=['last'])
+kb.add_hotkey('c', WaveformSelect, args=['next'])
 kb.add_hotkey('v', SawMod, args=['down'])
 kb.add_hotkey('b', SawMod, args=['up'])
 kb.add_hotkey('n', PulseMod, args=['down'])
 kb.add_hotkey('m', PulseMod, args=['up'])
-kb.add_hotkey('z', WaveformSelect, args=['last'])
-kb.add_hotkey('c', WaveformSelect, args=['next'])
+kb.add_hotkey('`', DisplayCurrent)
 kb.add_hotkey('q', StartPress, args=[108])  # corresponds with C
 kb.on_release_key('q', KeyRelease)
 kb.add_hotkey('2', StartPress, args=[109])  # corresponds with CsDb
